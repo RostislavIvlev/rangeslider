@@ -1,3 +1,5 @@
+import "./rangeslider"
+
 // Autoadd all scss/css/ts files
 function importAll (r) {
     r.keys().forEach(r);
