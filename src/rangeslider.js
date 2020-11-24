@@ -28,19 +28,24 @@
                 _this.rsBase.addClass("rsBase");
             
                 _this.rsThumb1 = $("<div/>").appendTo(rsBase);
-                _this.rsThumb1.addClass("rsThumb rsThumb_1");
+                _this.rsThumb1.addClass("rsThumb");
                 _this.rsThumb1.css("left", rsCalculate().thumbPosition1);
 
             
                 if (settings.additionThumb == true) {
-                    _this.rsThumb2 = $("<div/>").appendTo(rsBase);
-                    _this.rsThumb2.addClass("rsThumb rsThumb_2");
+                    _this.rsThumb2 = $("<div/>").appendTo(rsBase).addClass("rsThumb");
                     _this.rsThumb2.css("left", rsCalculate().thumbPosition2);
+
+                    _this.rsBetween = $("<div/>").appendTo(rsBase).addClass("rsBetween");
+                    _this.rsBetween.css("left", rsCalculate().thumbPosition1 + 6);
+                    _this.rsBetween.css("width", rsCalculate().thumbPosition2 - rsCalculate().thumbPosition1)
                 };
+
+
             };
 
             function rsCalculate() {
-                let baseWidth = rsBase.css("width").slice(0, -2);
+                let baseWidth = rsBase.width();
                 let minMax = settings.max - settings.min;
                 let thumbPosition1 = (baseWidth/minMax * settings.thumbPosition) - 6;
                 let thumbPosition2 = baseWidth/minMax * settings.additionPosition - 6;
@@ -65,8 +70,7 @@
     });
 })(jQuery);
 
-
-var $rangeslider = $(".test").rangeslider({
+$(".test").rangeslider({
     additionThumb: true,
     thumbPosition: 5000,
     additionPosition: 10000,
