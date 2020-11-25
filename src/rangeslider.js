@@ -14,6 +14,29 @@
 
             var settings = $.extend({}, this.defaultOptions, options);
 
+            function thumbsSwap() {
+                if (settings.thumbPosition > settings.additionPosition) {
+                    let tempPosition = settings.thumbPosition;
+                    settings.thumbPosition = settings.additionPosition;
+                    settings.additionPosition = tempPosition;
+                }
+            }
+
+            function thumbsMinMax() {
+                if (settings.thumbPosition > settings.max) {
+                    settings.thumbPosition = settings.max
+                };
+                if (settings.thumbPosition < settings.min) {
+                    settings.thumbPosition = settings.min
+                };
+                if (settings.additionPosition > settings.max) {
+                    settings.additionPosition = settings.max
+                };
+                if (settings.additionPosition < settings.min) {
+                    settings.additionPosition = settings.min
+                };
+            }
+
             function rsBuild() {
                 let _this = this;
                 _this.rsWrapper = $("<div/>").appendTo(settings.target);
@@ -62,7 +85,9 @@
 
             return this.each(function() {
                 var $this = $(this);
-
+                
+                thumbsMinMax();
+                thumbsSwap();
                 rsBuild();
                 showInput();
             });
@@ -73,7 +98,7 @@
 $(".test").rangeslider({
     additionThumb: true,
     thumbPosition: 5000,
-    additionPosition: 10000,
+    additionPosition: -10000,
     display: true,
     min: 0,
     max: 15000,
