@@ -3,38 +3,42 @@
         rangeslider: function(options) {
             this.defaultOptions = {
                 target:               $(this),
-                thumbPosition:        0,
-                additionPosition:     undefined, 
+                thumbValue:        0,
+                additionValue:     undefined, 
                 min:                  0,
                 max:                  100,
                 description:          false,
                 display:              false,
             }
 
-            var settings = $.extend({}, this.defaultOptions, options);
+            var settings = {
+                thumbPosition: 0,
+                additionPosition: 0
+            }
+            settings = $.extend({}, this.defaultOptions, options);
 
-            // Swap thumbs if additionPosition > thumbPosition
+            // Swap thumbs if additionValue > thumbValue
             function thumbsSwap() {
-                if (settings.thumbPosition > settings.additionPosition) {
-                    let tempPosition = settings.thumbPosition;
-                    settings.thumbPosition = settings.additionPosition;
-                    settings.additionPosition = tempPosition;
+                if (settings.thumbValue > settings.additionValue) {
+                    let tempPosition = settings.thumbValue;
+                    settings.thumbValue = settings.additionValue;
+                    settings.additionValue = tempPosition;
                 }
             }
 
             // Secure rs from incorrect values for thumbs
             function thumbsMinMax() {
-                if (settings.thumbPosition > settings.max) {
-                    settings.thumbPosition = settings.max
+                if (settings.thumbValue > settings.max) {
+                    settings.thumbValue = settings.max
                 };
-                if (settings.thumbPosition < settings.min) {
-                    settings.thumbPosition = settings.min
+                if (settings.thumbValue < settings.min) {
+                    settings.thumbValue = settings.min
                 };
-                if (settings.additionPosition > settings.max) {
-                    settings.additionPosition = settings.max
+                if (settings.additionValue > settings.max) {
+                    settings.additionValue = settings.max
                 };
-                if (settings.additionPosition < settings.min) {
-                    settings.additionPosition = settings.min
+                if (settings.additionValue < settings.min) {
+                    settings.additionValue = settings.min
                 };
             }
 
@@ -54,11 +58,14 @@
                 _this.rsThumb1 = $("<div/>").appendTo(rsBase);
                 _this.rsThumb1.addClass("rsThumb");
                 _this.rsThumb1.css("left", rsCalculate().thumbPosition1);
+                settings.thumbPosition = rsCalculate().thumbPosition1;
 
             
-                if (settings.additionPosition != undefined) {
+                if (settings.additionValue != undefined) {
                     _this.rsThumb2 = $("<div/>").appendTo(rsBase).addClass("rsThumb");
                     _this.rsThumb2.css("left", rsCalculate().thumbPosition2);
+                    settings.additionPosition = rsCalculate().thumbPosition2;
+
 
                     _this.rsBetween = $("<div/>").appendTo(rsBase).addClass("rsBetween");
                     _this.rsBetween.css("left", rsCalculate().thumbPosition1 + 6);
@@ -71,8 +78,8 @@
             function rsCalculate() {
                 let baseWidth = rsBase.width();
                 let minMax = settings.max - settings.min;
-                let thumbPosition1 = (baseWidth/minMax * settings.thumbPosition) - 6;
-                let thumbPosition2 = baseWidth/minMax * settings.additionPosition - 6;
+                let thumbPosition1 = (baseWidth/minMax * settings.thumbValue) - 6;
+                let thumbPosition2 = baseWidth/minMax * settings.additionValue - 6;
 
                 return {
                     thumbPosition1,
@@ -82,10 +89,10 @@
             
 
             function showInput() {
-                if (settings.additionPosition == undefined) {
-                    rsDisplay.val(settings.thumbPosition)
+                if (settings.additionValue == undefined) {
+                    rsDisplay.val(settings.thumbValue)
                 } else {
-                    rsDisplay.val(settings.thumbPosition + " - " + settings.additionPosition);
+                    rsDisplay.val(settings.thumbValue + " - " + settings.additionValue);
                 }
             }
 
@@ -99,19 +106,41 @@
                         function move(e) {
                             let newLeft = e.clientX - shiftX - rsBase.offset().left;  //data for new position;
 
-                            if (newLeft < 0) {
-                                newLeft = 0;
-                            };
+                            if (pointer.is(rsThumb1) && (settings.additionValue != undefined)) {
+                                rightEdge = settings.additionPosition-12;
+                                if (newLeft > rightEdge) {
+                                    newLeft = rightEdge;
+                                };
+                                if (newLeft < 0) {
+                                    newLeft = 0;
+                                };
+                                settings.thumbPosition = newLeft;
+                            } else if (pointer.is(rsThumb1) && (settings.additionValue == undefined)) {
+                                rightEdge = rsBase.width() - pointer.width();
+                                if (newLeft > rightEdge) {
+                                    newLeft = rightEdge;
+                                };
+                                if (newLeft < 0) {
+                                    newLeft = 0;
+                                };
+                                settings.thumbPosition = newLeft;
+                            } else if (pointer.is(rsThumb2)) {
+                                rightEdge = rsBase.width() - pointer.width();
+                                if (newLeft > rightEdge) {
+                                    newLeft = rightEdge;
+                                };
+                                if (newLeft < settings.thumbPosition + 12) {
+                                    newLeft = settings.thumbPosition + 12;
+                                };
+                                settings.additionPosition = newLeft;
+                            }
 
-                            let rightEdge = rsBase.width() - pointer.width();
+                            
 
-                            if (newLeft > rightEdge) {
-                                newLeft = rightEdge;
-                            };
+
 
                             pointer.css("left", newLeft + "px");
 
-                            console.log(newLeft)
                         }
 
                         $(document).on("mousemove", move)
@@ -119,6 +148,8 @@
                 }
                 function drop() {
                     $(document).unbind("mousemove");
+                    console.log(settings.thumbPosition);
+                    console.log(settings.additionPosition)
                 }
 
                 $(this).on("mousedown", drag)
@@ -141,8 +172,8 @@
 })(jQuery);
 
 $(".test").rangeslider({
-    thumbPosition: 5000,
-    additionPosition: 10000,
+    thumbValue: 5000,
+    additionValue: 10000,
     display: true,
     min: 0,
     max: 15000,
