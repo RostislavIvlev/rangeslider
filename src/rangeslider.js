@@ -65,7 +65,7 @@ const { set } = require("lodash");
             
                 if (settings.additionValue != undefined) {
                     _this.rsThumb2 = $("<div/>").appendTo(rsBase).addClass("rsThumb");
-                    _this.rsThumb2.css("left", rsCalculate().thumbPosition2);
+                    _this.rsThumb2.css("left", rsCalculate().thumbPosition2+6);
                     settings.additionPosition = rsCalculate().thumbPosition2;
 
 
@@ -80,8 +80,8 @@ const { set } = require("lodash");
             function rsCalculate() {
                 let baseWidth = rsBase.width();
                 let minMax = settings.max - settings.min;
-                let thumbPosition1 = (baseWidth/minMax * settings.thumbValue) - 6;
-                let thumbPosition2 = baseWidth/minMax * settings.additionValue - 6;
+                let thumbPosition1 = (baseWidth/minMax * settings.thumbValue);
+                let thumbPosition2 = baseWidth/minMax * settings.additionValue;
 
                 return {
                     thumbPosition1,
@@ -94,7 +94,7 @@ const { set } = require("lodash");
                 if (settings.additionValue == undefined) {
                     rsDisplay.val(settings.thumbValue)
                 } else {
-                    rsDisplay.val(settings.thumbValue + " - " + settings.additionValue);
+                    rsDisplay.val(settings.thumbValue + "₽ - " + settings.additionValue + "₽");
                 }
             }
 
@@ -119,19 +119,25 @@ const { set } = require("lodash");
                                 settings.thumbPosition = newLeft;
                                 rsBetween.css("left", newLeft + 3);
                                 rsBetween.css("width", settings.additionPosition - newLeft+3);
+                                settings.thumbValue = Math.round(newLeft * (settings.max - settings.min) / rsBase.width());
+                                console.log(settings.thumbValue)
+
+                                rsDisplay.val(settings.thumbValue + "₽ - " + settings.additionValue + "₽")
                             } else if (pointer.is(rsThumb1) && (settings.additionValue == undefined)) {
                                 rightEdge = rsBase.width() - pointer.width();
                                 if (newLeft > rightEdge) {
-                                    newLeft = rightEdge;
+                                    newLeft = rightEdge + 8;
                                 };
                                 if (newLeft < 0) {
                                     newLeft = 0;
                                 };
                                 settings.thumbPosition = newLeft;
+                                rsDisplay.val(settings.thumbValue + "₽")
+                                settings.thumbValue = Math.round(newLeft * (settings.max - settings.min) / rsBase.width());
                             } else if (pointer.is(rsThumb2)) {
                                 rightEdge = rsBase.width() - pointer.width();
                                 if (newLeft > rightEdge) {
-                                    newLeft = rightEdge;
+                                    newLeft = rightEdge + 8;
                                 };
                                 if (newLeft < settings.thumbPosition + 12) {
                                     newLeft = settings.thumbPosition + 12;
@@ -139,6 +145,8 @@ const { set } = require("lodash");
                                 settings.additionPosition = newLeft;
                                 rsBetween.css("right", newLeft + 3);
                                 rsBetween.css("width", newLeft+3 - settings.thumbPosition);
+                                rsDisplay.val(settings.thumbValue + "₽ - " + settings.additionValue + "₽")
+                                settings.additionValue = Math.round(newLeft * (settings.max - settings.min) / rsBase.width());
                             }
 
                             pointer.css("left", newLeft + "px");
