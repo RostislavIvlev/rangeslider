@@ -2,10 +2,9 @@
     $.fn.extend({
         rangeslider: function(options) {
             this.defaultOptions = {
-                additionThumb:        false,
                 target:               $(this),
                 thumbPosition:        0,
-                additionPosition:     100, 
+                additionPosition:     undefined, 
                 min:                  0,
                 max:                  100,
                 description:          false,
@@ -14,6 +13,7 @@
 
             var settings = $.extend({}, this.defaultOptions, options);
 
+            // Swap thumbs if additionPosition > thumbPosition
             function thumbsSwap() {
                 if (settings.thumbPosition > settings.additionPosition) {
                     let tempPosition = settings.thumbPosition;
@@ -22,6 +22,7 @@
                 }
             }
 
+            // Secure rs from incorrect values for thumbs
             function thumbsMinMax() {
                 if (settings.thumbPosition > settings.max) {
                     settings.thumbPosition = settings.max
@@ -55,7 +56,7 @@
                 _this.rsThumb1.css("left", rsCalculate().thumbPosition1);
 
             
-                if (settings.additionThumb == true) {
+                if (settings.additionPosition != undefined) {
                     _this.rsThumb2 = $("<div/>").appendTo(rsBase).addClass("rsThumb");
                     _this.rsThumb2.css("left", rsCalculate().thumbPosition2);
 
@@ -78,10 +79,53 @@
                     thumbPosition2
                 };
             };
+            
 
             function showInput() {
-                rsDisplay.val(settings.thumbPosition + " - " + settings.additionPosition);
+                if (settings.additionPosition == undefined) {
+                    rsDisplay.val(settings.thumbPosition)
+                } else {
+                    rsDisplay.val(settings.thumbPosition + " - " + settings.additionPosition);
+                }
             }
+
+            function dragNDrop() {
+                function drag(e) {
+                    e.preventDefault;
+                    let pointer = $(event.target);
+                    if (pointer.is(".rsThumb")) {
+                        let shiftX = e.clientX - pointer.offset().left;
+
+                        function move(e) {
+                            let newLeft = e.clientX - shiftX - rsBase.offset().left;  //data for new position;
+
+                            if (newLeft < 0) {
+                                newLeft = 0;
+                            };
+
+                            let rightEdge = rsBase.width() - pointer.width();
+
+                            if (newLeft > rightEdge) {
+                                newLeft = rightEdge;
+                            };
+
+                            pointer.css("left", newLeft + "px");
+
+                            console.log(newLeft)
+                        }
+
+                        $(document).on("mousemove", move)
+                    } else return
+                }
+                function drop() {
+                    $(document).unbind("mousemove");
+                }
+
+                $(this).on("mousedown", drag)
+                $(document).on("mouseup", drop)
+            }
+
+            
 
             return this.each(function() {
                 var $this = $(this);
@@ -90,15 +134,15 @@
                 thumbsSwap();
                 rsBuild();
                 showInput();
+                dragNDrop();
             });
         }
     });
 })(jQuery);
 
 $(".test").rangeslider({
-    additionThumb: true,
     thumbPosition: 5000,
-    additionPosition: -10000,
+    additionPosition: 10000,
     display: true,
     min: 0,
     max: 15000,
