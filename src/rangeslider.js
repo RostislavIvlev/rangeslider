@@ -1,3 +1,5 @@
+const { set } = require("lodash");
+
 (function($) {
     $.fn.extend({
         rangeslider: function(options) {
@@ -115,6 +117,8 @@
                                     newLeft = 0;
                                 };
                                 settings.thumbPosition = newLeft;
+                                rsBetween.css("left", newLeft + 3);
+                                rsBetween.css("width", settings.additionPosition - newLeft+3);
                             } else if (pointer.is(rsThumb1) && (settings.additionValue == undefined)) {
                                 rightEdge = rsBase.width() - pointer.width();
                                 if (newLeft > rightEdge) {
@@ -133,14 +137,11 @@
                                     newLeft = settings.thumbPosition + 12;
                                 };
                                 settings.additionPosition = newLeft;
+                                rsBetween.css("right", newLeft + 3);
+                                rsBetween.css("width", newLeft+3 - settings.thumbPosition);
                             }
 
-                            
-
-
-
                             pointer.css("left", newLeft + "px");
-
                         }
 
                         $(document).on("mousemove", move)
@@ -149,7 +150,8 @@
                 function drop() {
                     $(document).unbind("mousemove");
                     console.log(settings.thumbPosition);
-                    console.log(settings.additionPosition)
+                    console.log(settings.additionPosition);
+                    
                 }
 
                 $(this).on("mousedown", drag)
